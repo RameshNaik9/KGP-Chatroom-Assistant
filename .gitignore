@@ -1,0 +1,4 @@
+__pycache__
+kgpchatroom_env
+.env
+*.DS_Store
