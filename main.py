@@ -20,7 +20,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     conversation_id: str
     assistant_response: str
-    title_response: Optional[str] = None  # Make title_response optional
+    chat_title: Optional[str] = None  # Make chat_title optional
 
 def get_chat_engine(conversation_id: str, chat_profile: str) -> ContextChatEngine:
     # Initialize the session and title status if it doesn't exist
@@ -54,8 +54,8 @@ def chat(request: ChatRequest):
         # Create response object
         response_data = ChatResponse(
             conversation_id=conversation_id,
-            assistant_response=str(response).replace("\n", " "),  # Remove newline characters
-            title_response=title  # Return title only if it was generated
+            assistant_response=str(response),
+            chat_title=title  # Return title only if it was generated
         )
 
         return response_data
