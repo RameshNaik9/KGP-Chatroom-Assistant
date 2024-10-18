@@ -1,8 +1,9 @@
 from kgpchatroom import KGPChatroomModel
 
-def get_chat_name(user_message: str, title_response: str) -> str:
+def get_chat_name(user_message: str, assistant_response: str) -> str:
     llm= KGPChatroomModel().get_model()
-    query = f"User: {user_message}\nAssistant: {title_response}"
-    prompt = f"Based on the following text, create a concise and engaging chat title that captures the core theme or main idea. Keep it under 5 words. Ensure it is descriptive yet intriguing, encouraging further exploration of the topic.{query}"
+    query = f"User: {user_message}\nAssistant: {assistant_response}"
+    prompt = f"Summarize the following conversation between Assistant and User in 1 sentence. Make sure that the sentence is under 6 words and is a creative and catchy phrase.{query}"
     title = llm.complete(prompt)
-    return title.text.strip("\n")
+    chat_title = title.text.strip("\n")
+    return chat_title

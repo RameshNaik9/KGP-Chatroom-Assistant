@@ -23,7 +23,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     conversation_id: str
     assistant_response: str
-    title_response: Optional[str] = None  # Make title_response optional
+    chat_title: Optional[str] = None  # Make title_response optional
     tags_list: Optional[list] = None
     questions_list: Optional[list] = None
 
@@ -63,7 +63,7 @@ def chat(request: ChatRequest):
         response_data = ChatResponse(
             conversation_id=conversation_id,
             assistant_response=str(response).replace("\n", " "),  # Remove newline characters
-            title_response=title,  # Return title only if it was generated
+            chat_title=title,  # Return title only if it was generated
             tags_list = tags_list,
             questions_list = questions_list
         )
