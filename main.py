@@ -6,8 +6,11 @@ from typing import Optional
 from template import Template
 from chat_title import get_chat_name
 from kgpchatroom import KGPChatroomModel
+from tags import get_tags
+from question_recommendations import question_recommendations
 
 template = Template.get_template()
+LLM = KGPChatroomModel().get_model()
 
 chat_sessions = {}
 app = FastAPI()
@@ -21,6 +24,8 @@ class ChatResponse(BaseModel):
     conversation_id: str
     assistant_response: str
     title_response: Optional[str] = None  # Make title_response optional
+    tags_list: Optional[list] = None
+    questions_list: Optional[list] = None
 
 def get_chat_engine(conversation_id: str, chat_profile: str) -> ContextChatEngine:
     # Initialize the session and title status if it doesn't exist
@@ -51,11 +56,16 @@ def chat(request: ChatRequest):
             title = get_chat_name(user_message, response)
             chat_sessions[conversation_id]['title_generated'] = True  # Set to True after generating title
 
+        history = chat_engine.chat_history
+        tags_list, _ = get_tags(history,LLM)
+        questions_list, _ = question_recommendations(history,LLM)        
         # Create response object
         response_data = ChatResponse(
             conversation_id=conversation_id,
             assistant_response=str(response).replace("\n", " "),  # Remove newline characters
-            title_response=title  # Return title only if it was generated
+            title_response=title,  # Return title only if it was generated
+            tags_list = tags_list,
+            questions_list = questions_list
         )
 
         return response_data
@@ -74,6 +84,17 @@ def reset_chat(conversation_id: str):
             raise KeyError
     except KeyError:
         raise HTTPException(status_code=404, detail=f"Conversation ID {conversation_id} does not exist or has already been reset")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.delete("/chats/delete_all")
+def master_reset():
+    try:
+        if chat_sessions:
+            chat_sessions.clear()  # Clear all chat sessions
+            return {"message": "All chat conversations have been deleted successfully! 😈"}
+        else:
+            raise HTTPException(status_code=404, detail="No active chat conversations to delete 😕")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

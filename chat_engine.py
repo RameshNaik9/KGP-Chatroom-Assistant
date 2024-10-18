@@ -327,7 +327,9 @@ class ContextChatEngine(BaseChatEngine):
             nodes = prev_chunks
 
         # Get the response synthesizer with dynamic prompts
-        chat_history = self._memory.get(input=message)
+        chat_history = self._memory.get(
+            input=message,
+        )
         synthesizer = self._get_response_synthesizer(chat_history)
 
         response = await synthesizer.asynthesize(message, nodes)
@@ -377,7 +379,9 @@ class ContextChatEngine(BaseChatEngine):
             nodes = prev_chunks
 
         # Get the response synthesizer with dynamic prompts
-        chat_history = self._memory.get(input=message)
+        chat_history = self._memory.get(
+            input=message,
+        )
         synthesizer = self._get_response_synthesizer(chat_history, streaming=True)
 
         response = await synthesizer.asynthesize(message, nodes)
@@ -399,8 +403,8 @@ class ContextChatEngine(BaseChatEngine):
                     delta=token,
                 )
 
-            user_message = ChatMessage(content=message,role=MessageRole.USER,additional_kwargs={"user_timestamp": user_timestamp})
-            ai_message = ChatMessage(content=full_response, role=MessageRole.ASSISTANT,additional_kwargs={"assistant_timestamp": assistant_timestamp})
+            user_message = ChatMessage(content=message, role=MessageRole.USER)
+            ai_message = ChatMessage(content=full_response, role=MessageRole.ASSISTANT)
             await self._memory.aput(user_message)
             await self._memory.aput(ai_message)
 

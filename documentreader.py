@@ -1,9 +1,12 @@
 import os
 import docx2txt
-from typing import List
-from llama_index.core import Document, SimpleDirectoryReader
+# from typing import List, Tuple
+from llama_index.core import SimpleDirectoryReader #Document in case someone wanted to define what would be the ooutput dataype in terms of Llama index
 from llama_index.readers.json import JSONReader
-from llama_index.core.node_parser import SentenceSplitter  # Adjusted import for SentenceSplitter
+from llama_index.core.node_parser import SentenceSplitter, JSONNodeParser, SemanticSplitterNodeParser
+from kgpchatroom import KGPChatroomModel
+
+embedding_model = KGPChatroomModel().get_embedding_model()
 
 class DocumentLoader:
     """Document loader to load files from a directory into documents."""
@@ -11,9 +14,10 @@ class DocumentLoader:
     def __init__(self, input_dir):
         self.input_dir = input_dir
 
-    def load_documents(self) -> List[Document]:
+    def load_documents_and_nodes(self): #-> Tuple[List[Document],List[node_parser.Node]] .... Since there is no pre-defined datatype for Node, we can't use it in the return type
         """Loads documents from the directory, handling .json files separately from other formats."""
         documents = []
+        nodes = []
 
         # Iterate through all files in the directory
         for root, _, files in os.walk(self.input_dir):
@@ -29,6 +33,9 @@ class DocumentLoader:
                         documents.extend(json_documents)
                     except Exception as e:
                         print(f"Error loading JSON file {file}: {e}")
+                    json_parser = JSONNodeParser()
+                    json_nodes = json_parser.get_nodes_from_documents(documents)
+                    nodes.extend(json_nodes)
 
                 # For all other formats, use SimpleDirectoryReader
                 else:
@@ -38,8 +45,11 @@ class DocumentLoader:
                         documents.extend(other_documents)
                     except Exception as e:
                         print(f"Error loading file {file}: {e}")
-
-        return documents
+                    semantic_splitter = SemanticSplitterNodeParser(buffer_size=1,breakpoint_percentile_threshold=90,include_metadata=True,embed_model=embedding_model)
+                    semantic_nodes = semantic_splitter.get_nodes_from_documents(documents)
+                    nodes.extend(semantic_nodes)
+                    
+        return documents, nodes
 
     def text_splitter(self):
         """Splits the text content of a document into sentences."""

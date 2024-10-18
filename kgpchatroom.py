@@ -8,61 +8,6 @@ from pinecone import Pinecone
 
 load_dotenv()
 
-# class KGPChatroomModel:
-#     """
-#     Responsible for configuring and providing models and embeddings.
-#     Adheres to SRP by focusing solely on model management.
-#     """
-#     def __init__(self, pinecone_api_key=None, google_api_key=None):
-#         self.pinecone_api_key = pinecone_api_key or os.getenv("PINECONE_API_KEY")
-#         self.pc = Pinecone(api_key=self.pinecone_api_key)
-#         self.base_persist_dir = "pinecone index"  # Base directory for all categories
-#         self.google_api_key = google_api_key or os.getenv("GOOGLE_API_KEY")
-
-#         if not self.pinecone_api_key or not self.google_api_key:
-#             raise ValueError("API keys for Pinecone or Google are missing!")
-
-#         self.pc = Pinecone(api_key=self.pinecone_api_key)
-#         self._configure_models()
-
-#     def _configure_models(self):
-#         """Configure the embedding and LLM models."""
-#         Settings.embed_model = GeminiEmbedding(
-#             model_name="models/text-embedding-004",
-#             api_key=self.google_api_key
-#         )
-#         Settings.llm = Gemini(
-#             model_name="models/gemini-1.5-flash-002",
-#             temperature=1,
-#             api_key=self.google_api_key
-#         )
-
-#     def get_model(self):
-#         """Return the configured LLM model."""
-#         return Settings.llm
-
-#     def get_embedding_model(self):
-#         """Return the configured embedding model."""
-#         return Settings.embed_model
-
-#     def get_pinecone_index(self, host_url):
-#         """Retrieve the Pinecone index using the provided host URL."""
-#         return self.pc.Index(host=host_url)
-
-#     def get_vector_store(self, host_url):
-#         """Get the vector store with the specified host URL."""
-#         pinecone_index = self.get_pinecone_index(host_url)
-#         return PineconeVectorStore(pinecone_index=pinecone_index)
-
-#     def load_vector_index(self, host_url, chat_profile):
-#         persist_dir = os.path.join(self.base_persist_dir, chat_profile)  # Create a path for the specific category
-#         vector_store = self.get_vector_store(host_url)
-#         storage_context = StorageContext.from_defaults(persist_dir=persist_dir, vector_store=vector_store)
-#         index = load_index_from_storage(storage_context=storage_context)
-#         return index
-      
-### MODDA KOTTU
-
 class KGPChatroomModel:
     """
     Responsible for configuring and providing models and embeddings.
@@ -73,7 +18,7 @@ class KGPChatroomModel:
         self.google_api_key = google_api_key or os.getenv("GOOGLE_API_KEY")
 
         if not self.pinecone_api_key or not self.google_api_key:
-            raise ValueError("API keys for Pinecone or Google are missing!")
+            raise ValueError("No API keys??")
 
         self.pc = Pinecone(api_key=self.pinecone_api_key)
         self.base_persist_dir = "pinecone index"
@@ -87,19 +32,12 @@ class KGPChatroomModel:
             # Add more mappings as needed
         }
 
-        self._configure_models()
+        self.configure_models()
 
-    def _configure_models(self):
+    def configure_models(self):
         """Configure the embedding and LLM models."""
-        Settings.embed_model = GeminiEmbedding(
-            model_name="models/text-embedding-004",
-            api_key=self.google_api_key
-        )
-        Settings.llm = Gemini(
-            model_name="models/gemini-1.5-flash-002",
-            temperature=1,
-            api_key=self.google_api_key
-        )
+        Settings.embed_model = GeminiEmbedding(model_name="models/text-embedding-004",api_key=self.google_api_key)
+        Settings.llm = Gemini(model_name="models/gemini-1.5-flash-8b",temperature=1,api_key=self.google_api_key)
 
     def get_model(self):
         """Return the configured LLM model."""
