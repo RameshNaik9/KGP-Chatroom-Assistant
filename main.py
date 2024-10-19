@@ -62,7 +62,7 @@ def chat(request: ChatRequest):
         # Create response object
         response_data = ChatResponse(
             conversation_id=conversation_id,
-            assistant_response=str(response).replace("\n", " "),  # Remove newline characters
+            assistant_response=str(response),  # Remove newline characters
             chat_title=title,  # Return title only if it was generated
             tags_list = tags_list,
             questions_list = questions_list
